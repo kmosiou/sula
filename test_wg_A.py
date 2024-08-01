@@ -20,10 +20,10 @@ with open(filepath, 'rb') as file:
 dill.load_session('wswd_f.pkl') # load wind
 z0=0.0002
 grav=9.8
-u10a = ws* (np.log(10/z0))/np.log(4.1/z0)
-u10 = u10a.where(u10a>8, drop=True)
-wdd = wd.where((wd >= 90) & (wd <=210), drop=True)
-indud = np.intersect1d(u10['time'].values, wdd['time'].values)
+u10a = ws* (np.log(10/z0))/np.log(4.1/z0) # Calculate windspeed @ 10m
+u10 = u10a.where(u10a>8, drop=True) # Filter windspeed 
+wdd = wd.where((wd >= 90) & (wd <=210), drop=True) # Filter wind direction
+indud = np.intersect1d(u10['time'].values, wdd['time'].values) 
 ud412 = wdd['WindDirection'].sel(time=indud)
 udr = np.round(ud412/10)*10
 xx = np.empty(len(udr))
@@ -56,11 +56,11 @@ for i in range(len(udr)):
         xx[i]=axeff[12]
         
 u10b = u10.sel(time=indud)
-afetch = (grav * xx)/u10b['WindSpeed']**2
+afetch = (grav * xx)/u10b['WindSpeed']**2 # Calculate dimensionless fetch
 windsea = aws['h_SPEC_windsea'].sel(time=indud)
 intS = windsea.integrate('frequency')
-ndewindsea = (grav**2 * intS)/u10b['WindSpeed']**4
-fc = afetch.where(~np.isnan(afetch), drop=True)
+ndewindsea = (grav**2 * intS)/u10b['WindSpeed']**4 # Calculate dimensionless energy
+fc = afetch.where(~np.isnan(afetch), drop=True) 
 ec = ndewindsea.where(~np.isnan(ndewindsea), drop=True)
 cf = afetch.sel(time=ec['time'].values)
 u10c = u10a.sel(time=ec['time'].values)
@@ -106,8 +106,8 @@ a,b = popt
 
 fig, ax = plt.subplots()
 points = plt.scatter(cf2, ec2, c=u10c2['WindSpeed'],cmap="viridis", lw=0, s=100)
-line2 = ax.plot(cf2, kce2, 'g-.',lw=4, label='KC92')
-line3 = ax.plot(cf2, hasselman2, 'b:',lw=4, label='Hasselman')
+line2 = ax.plot(cf2, kce2, 'g-.',lw=4, label='Kahma & Calkoen, 1992')
+line3 = ax.plot(cf2, hasselman2, 'b:',lw=4, label='Hasselman, 1973')
 line4 = ax.plot(cf2, fir_ord_e_hwang2, 'k--',lw=4, label='1st order Hwang & Wang, 2004')
 line5 = ax.plot(cf2, model(cf2,*popt), 'r-', lw=4, label= 'fit')
 ax.set_yscale('log')
