@@ -61,13 +61,13 @@ cf = afetch.sel(time=ec['time'].values)
 u10c = u10a.sel(time=ec['time'].values)
 
 # Resample and adjust windspeed data
-three_hour_means = u10c.resample(time='3H').mean(skipna=True)
+three_hour_means = u10c.resample(time='3h').mean(skipna=True)
 aligned_means = three_hour_means.reindex_like(u10c, method='ffill')
 adjusted_data_array = np.abs(u10c - aligned_means)
 
 # Resample and adjust wind direction data
 wdc = wdd.sel(time=ec['time'].values)
-resampled = wdc.resample(time='3H')
+resampled = wdc.resample(time='3h')
 three_hour_circular_means = resampled.reduce(circmean, high=360, low=0)
 aligned_circular_means = three_hour_circular_means.reindex(time=wdc.time, method='ffill')
 adjusted_circdata_array = np.abs(wdc['WindDirection'] - aligned_circular_means)
