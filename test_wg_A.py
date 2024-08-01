@@ -8,20 +8,20 @@ import pandas as pd
 import dill
 plt.rcParams.update({'font.size': 26})
 
-filepath = 'axeff_c.pickle'
+filepath = 'axeff_c.pickle' #load effective fetch
 with open(filepath, 'rb') as file:
     axeff = pickle.load(file)
 
-filepath = 'awindsea.pickle'
+filepath = 'awindsea.pickle' #load windsea_spec2d
 with open(filepath, 'rb') as file:
     aws = pickle.load(file)
     
 
-dill.load_session('wswd_f.pkl')
+dill.load_session('wswd_f.pkl') # load wind
 z0=0.0002
 grav=9.8
-u10a_150170 = ws* (np.log(10/z0))/np.log(4.1/z0)
-u10 = u10a_150170.where(u10a_150170>8, drop=True)
+u10a = ws* (np.log(10/z0))/np.log(4.1/z0)
+u10 = u10a.where(u10a>8, drop=True)
 wdd = wd.where((wd >= 90) & (wd <=210), drop=True)
 indud = np.intersect1d(u10['time'].values, wdd['time'].values)
 ud412 = wdd['WindDirection'].sel(time=indud)
@@ -56,14 +56,14 @@ for i in range(len(udr)):
         xx[i]=axeff[12]
         
 u10b = u10.sel(time=indud)
-afetch2 = (grav * xx)/u10b['WindSpeed']**2
-windsea150170 = aws['h_SPEC_windsea'].sel(time=indud)
-intS2 = windsea150170.integrate('frequency')
-ndewindsea150170 = (grav**2 * intS2)/u10b['WindSpeed']**4
-fc = afetch2.where(~np.isnan(afetch2), drop=True)
-ec = ndewindsea150170.where(~np.isnan(ndewindsea150170), drop=True)
-cf = afetch2.sel(time=ec['time'].values)
-u10c = u10a_150170.sel(time=ec['time'].values)
+afetch = (grav * xx)/u10b['WindSpeed']**2
+windsea = aws['h_SPEC_windsea'].sel(time=indud)
+intS = windsea.integrate('frequency')
+ndewindsea = (grav**2 * intS)/u10b['WindSpeed']**4
+fc = afetch.where(~np.isnan(afetch), drop=True)
+ec = ndewindsea.where(~np.isnan(ndewindsea), drop=True)
+cf = afetch.sel(time=ec['time'].values)
+u10c = u10a.sel(time=ec['time'].values)
 
 three_hour_means = u10c.resample(time='3H').mean(skipna=True)
 # Use broadcasting to align the original data with the 3-hour means
@@ -96,6 +96,7 @@ u10c2 = u10c.sel(time=cond_both)
 kce2= 5.2*pow(10,-7)*pow(cf2,0.9)
 hasselman2 = 1.6*pow(10,-7)*cf2
 fir_ord_e_hwang2 = 6.191*pow(10,-7)*pow(cf2,0.8106)
+
 from scipy.optimize import curve_fit
 def model(x, a, b):
     return a * np.power(x, b)
