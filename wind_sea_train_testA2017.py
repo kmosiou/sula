@@ -14,17 +14,18 @@ dsa17 = xr.open_dataset('2017_A_Sulafjord_specwind_new.nc')
 dsa17['cp'] = 9.81/(2*np.pi*dsa17['frequency']) # phase speed
 dsa17['u10'] = dsa17['WindSpeed'] * (np.log(10 / z0)) / np.log(4.1 / z0)
 
+
+# Drennan et al., 2003. On the wave age dependence of wind stress over pure wind seas
+# u10*cos(thetad) > 0.83*cp & thetad [winddir - pdir] < 45 
 thetad = np.abs(dsa17['WindDirection']-dsa17['pdir'])
 for i in range(len(thetad)):
     if thetad[i] > 180:
         thetad[i] = 360 - thetad[i]
     else:
         thetad[i] = thetad[i]
-
-cond2 = thetad.where(thetad<45, drop=True) % Drennan et al., 2003
+cond2 = thetad.where(thetad<45, drop=True) 
 dsa17['A'] = dsa17['u10']*np.cos(np.deg2rad(thetad))
 dsa17['B'] = 0.83*dsa17['cp']
-dsa17['WS'] = dsa17.where(dsa17['A']>dsa17['B'], drop=True) % Drennan et al., 2003
 dsa17['WS'] = dsa17['SPEC'].where(dsa17['A']>dsa17['B'], drop=True)
 dsa17['WS_1d'] = dsa17['WS'].integrate('direction')
 u10 = dsa17['u10'].sel(time=dsa17['WS_1d'].time.values)
@@ -33,6 +34,7 @@ u10 = dsa17['u10'].sel(time=dsa17['WS_1d'].time.values)
 filepath = 'axeff_c.pickle'
 with open(filepath, 'rb') as file:
     axeff = pickle.load(file)
+    
 dill.load_session('wswd_f.pkl')
 
 wd1 = dsa17['WindDirection'].sel(time=dsa17['WS_1d'].time.values)
@@ -61,13 +63,10 @@ cf = afetch.sel(time=ec['time'].values)
 u10c = u10b.sel(time=ec['time'].values)
 
 # Define models
-kce = 5.2e-7 * np.power(cf, 0.9)
-hasselman = 1.6e-7 * cf
-fir_ord_e_hwang = 6.191e-7 * np.power(cf, 0.8106)
+#kce = 5.2e-7 * np.power(cf, 0.9)
+#hasselman = 1.6e-7 * cf
+#fir_ord_e_hwang = 6.191e-7 * np.power(cf, 0.8106)
 
-# Fit the model to the data
-def model(x, a, b):
-    return a * np.power(x, b)
 # Fit the model to the data
 def model(x, a, b):
     return a * np.power(x, b)
