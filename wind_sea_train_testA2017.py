@@ -10,7 +10,7 @@ plt.rcParams.update({'font.size': 26})
 z0 = 0.0002
 grav=9.8
 
-dsa17 = xr.open_dataset('2017_A_Sulafjord_specwind_new.nc'
+dsa17 = xr.open_dataset('2017_A_Sulafjord_specwind_new.nc')
 dsa17['cp'] = 9.81/(2*np.pi*dsa17['frequency']) # phase speed
 dsa17['u10'] = dsa17['WindSpeed'] * (np.log(10 / z0)) / np.log(4.1 / z0)
 
