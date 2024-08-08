@@ -58,7 +58,7 @@ ndewindsea = (grav ** 2 * intS) / u10b['WindSpeed'] ** 4
 fc = afetch.where(~np.isnan(afetch), drop=True)
 ec = ndewindsea.where(~np.isnan(ndewindsea), drop=True)
 cf = afetch.sel(time=ec['time'].values)
-u10c = u10a.sel(time=ec['time'].values)
+u10c = u10b.sel(time=ec['time'].values)
 
 # Resample and adjust windspeed data
 three_hour_means = u10c.resample(time='3h').mean(skipna=True)
