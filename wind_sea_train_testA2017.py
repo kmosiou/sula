@@ -12,7 +12,7 @@ grav=9.8
 
 ds = xr.open_dataset('2017_A_Sulafjord_specwind_new.nc')
 ds['cp'] = 9.81/(2*np.pi*ds['frequency']) # phase speed
-ds['u10'] = dsa['WindSpeed'] * (np.log(10 / z0)) / np.log(4.1 / z0)
+ds['u10'] = ds['WindSpeed'] * (np.log(10 / z0)) / np.log(4.1 / z0)
 ds['pdir'] = ds['SPEC'].integrate('frequency').idxmax(dim='direction')
 
 # Drennan et al., 2003. On the wave age dependence of wind stress over pure wind seas
