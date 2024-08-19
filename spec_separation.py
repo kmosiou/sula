@@ -1,9 +1,6 @@
 import xarray as xr
 import numpy as np
-import pickle
-import dill
-import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
+
 ncfile = '2016_A_Sulafjord_specwind_new.nc'
 ds = xr.open_dataset(ncfile)
 
