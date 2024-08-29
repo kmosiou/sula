@@ -5,7 +5,7 @@ ncfile = '2016_A_Sulafjord_specwind_new.nc'
 ds = xr.open_dataset(ncfile)
 
 beta=1.2 
-grav=9.8
+#grav=9.8
 z0=0.0002
 ang_diff_threshold=45
 
