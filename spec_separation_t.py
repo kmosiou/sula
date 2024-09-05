@@ -1,6 +1,6 @@
 import xarray as xr
 import numpy as np
-
+from aux_funcs import angdiff
 beta=1.2 
 #grav=9.8
 z0=0.0002
@@ -10,7 +10,8 @@ ds = xr.open_dataset(ncfile)
 
 ds['u10'] = ds['WindSpeed'] * (np.log(10 / z0)) / np.log(4.1 / z0)
 ds['cp'] = grav / (2 * np.pi * ds['frequency'])
-ds['a'] = beta * (ds['u10'] / ds['cp']) * np.cos(ds['direction']-np.deg2rad(ds['WindDirection']))
+dth = angdif(np.rad2deg(ds['direction']), ds['WindDirection'])
+ds['a'] = beta * (ds['u10'] / ds['cp']) * np.cos(np.deg2rad(dth))
 ds['WS'] = ds['SPEC'].where(ds['a'] > 1, 0)
 ds['windsea'] = ds['WS'].integrate('direction')
 ds['SW'] = ds['SPEC'].where(ds['a'] <= 1, 0)
