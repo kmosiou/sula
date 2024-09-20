@@ -67,10 +67,11 @@ adjusted_data_array = np.abs(u10c - aligned_means)
 
 # Resample and adjust wind direction data
 wdc = wdd.sel(time=ec['time'].values)
+wdc = np.deg2rad(wdc)
 resampled = wdc.resample(time='3h')
 three_hour_circular_means = resampled.reduce(circmean, high=360, low=0) # correction needed, circmean needs angles in radians
 aligned_circular_means = three_hour_circular_means.reindex(time=wdc.time, method='ffill')
-adjusted_circdata_array = np.abs(wdc['WindDirection'] - aligned_circular_means)
+adjusted_circdata_array = np.rad2deg(np.abs(wdc['WindDirection'] - aligned_circular_means))
 thetadd = adjusted_circdata_array.where(~np.isnan(adjusted_circdata_array), drop=True)
 thetad3 = xr.where(thetadd > 180, 360 - thetadd, thetadd)
 
