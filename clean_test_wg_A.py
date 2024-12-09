@@ -61,29 +61,29 @@ cf = afetch.sel(time=ec['time'].values)
 u10c = u10b.sel(time=ec['time'].values)
 
 # Resample and adjust windspeed data
-three_hour_means = u10c.resample(time='3h').mean(skipna=True)
-aligned_means = three_hour_means.reindex_like(u10c, method='ffill')
-adjusted_data_array = np.abs(u10c - aligned_means)
+#three_hour_means = u10c.resample(time='3h').mean(skipna=True)
+#aligned_means = three_hour_means.reindex_like(u10c, method='ffill')
+#adjusted_data_array = np.abs(u10c - aligned_means)
 
 # Resample and adjust wind direction data
-wdc = wdd.sel(time=ec['time'].values)
-wdc = np.deg2rad(wdc)
-resampled = wdc.resample(time='3h')
-three_hour_circular_means = resampled.reduce(circmean, high=360, low=0) # correction needed, circmean needs angles in radians
-aligned_circular_means = three_hour_circular_means.reindex(time=wdc.time, method='ffill')
-adjusted_circdata_array = np.rad2deg(np.abs(wdc['WindDirection'] - aligned_circular_means))
-thetadd = adjusted_circdata_array.where(~np.isnan(adjusted_circdata_array), drop=True)
-thetad3 = xr.where(thetadd > 180, 360 - thetadd, thetadd)
+#wdc = wdd.sel(time=ec['time'].values)
+#wdc = np.deg2rad(wdc)
+#resampled = wdc.resample(time='3h')
+#three_hour_circular_means = resampled.reduce(circmean, high=360, low=0) 
+#aligned_circular_means = three_hour_circular_means.reindex(time=wdc.time, method='ffill')
+#adjusted_circdata_array = np.rad2deg(np.abs(wdc['WindDirection'] - aligned_circular_means))
+#thetadd = adjusted_circdata_array.where(~np.isnan(adjusted_circdata_array), drop=True)
+#thetad3 = xr.where(thetadd > 180, 360 - thetadd, thetadd)
 
 # Filter conditions |u - umean| <= 2.5 & |theta - thetamean| <= 15
-cond_wd = adjusted_circdata_array.where(thetad3 <= 15, drop=True)
-cond_ws = adjusted_data_array.where(adjusted_data_array <= 2.5, drop=True)
-cond_both = np.intersect1d(cond_wd.time.values, cond_ws.time.values)
+#cond_wd = adjusted_circdata_array.where(thetad3 <= 15, drop=True)
+#cond_ws = adjusted_data_array.where(adjusted_data_array <= 2.5, drop=True)
+#cond_both = np.intersect1d(cond_wd.time.values, cond_ws.time.values)
 
 # Select data based on conditions
-cf2 = cf.sel(time=cond_both)
-ec2 = ec.sel(time=cond_both)
-u10c2 = u10c.sel(time=cond_both)
+#cf2 = cf.sel(time=cond_both)
+#ec2 = ec.sel(time=cond_both)
+#u10c2 = u10c.sel(time=cond_both)
 
 # Define models
 kce2 = 5.2e-7 * np.power(cf2, 0.9)
