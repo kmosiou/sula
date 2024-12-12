@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pickle
 
 filepath = 'fetch_ext.pickle'
@@ -15,8 +16,7 @@ for i in range(x):
     loc = np.argmin(np.abs(a_fetch_ext.index - angles[i]))
     temp = a_fetch_ext.iloc[loc-4:loc+5,0]
     dirs = np.zeros(len(temp))
-    for j in range(len(temp)):
-        dirs[j] = np.deg2rad(temp.index[j]-ang[i])
+    dirs = np.deg2rad(angles[i]-temp.index)
     A = np.empty(len(temp))
     B = np.empty(len(temp))
     for u in range(len(dirs)):
