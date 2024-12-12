@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import pickle
 
 filepath = 'fetch_ext.pickle'
@@ -22,6 +21,6 @@ for i in range(x):
     for u in range(len(dirs)):
         A[u] = temp.values[u]*(np.cos(dirs[u])**2)
         B[u] = np.cos(dirs[u])
-    axeff[i] = np.sum(A)/np.abs(np.sum(B))
+    axeff[i] = np.sum(A)/np.sum(B)
 del A, B, dirs, temp, loc
 
