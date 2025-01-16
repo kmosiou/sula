@@ -134,3 +134,28 @@ def process_wind_data(wind_data, z0=0.0002, grav=9.8, window_size=9, ws_threshol
     
     return wind_f, dir_f
 
+def angdif_v2(angle1, angle2):
+
+    """
+              angle1, angle2: in degrees
+    Returns:
+              smallest differece between angle1, angle2: dif
+
+    """
+    
+    dif = np.zeros(len(angle1))
+
+    for i in range(len(dif)):
+        if (angle1[i] > angle2[i]):
+           if ((angle1[i] - angle2[i]) > 180):
+               dif[i] = (360 - angle1[i]) + angle2[i]
+           else:
+               dif[i] = angle1[i] - angle2[i]
+        else:
+            if ((angle2[i] - angle1[i]) > 180):
+                dif[i] = (360 - angle2[i]) + angle1[i]
+            else:
+                dif[i] = angle2[i] - angle1[i]
+
+     return dif
+
