@@ -157,5 +157,5 @@ def angdif_v2(angle1, angle2):
             else:
                 dif[i] = angle2[i] - angle1[i]
 
-     return dif
+    return dif
 
