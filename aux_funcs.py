@@ -109,8 +109,8 @@ def process_wind_data(wind_data, z0=0.0002, grav=9.8, window_size=9, ws_threshol
     
     # Compute 1.5 hour rolling direction
     dperr = 180 / np.pi
-    wind['dir15'] = np.arctan2(wind['u15'], wind['v15']) * dperr
-    wind['dir15'] = wind['dir15'] % 360
+    wind['dir15'] = (np.arctan2(wind['u15'], wind['v15']) * dperr) % 360
+    
     
     # Convert DataFrame to xarray and compute differences
     wind2 = wind.to_xarray()
