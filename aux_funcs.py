@@ -78,6 +78,45 @@ def process_dataset(file_path, z0, beta, grav=9.81):
   
     return ds
 
+def aarnes_windsea(file_path, z0, beta, grav=9.81):
+    """
+    Partitioning of the directional spectrum to extract the windsea part.
+    Methodology according to: a) Bidlot 2001 & b) Aarnes & Krogstad 2001
+    Parameters:
+    - file_path (str): Path to the NetCDF file.
+    - z0 (float): Roughness length for logarithmic wind profile.
+    - beta (float): 1.2 according to Bidlot 2001.
+    - grav (float, optional): Acceleration due to gravity (default is 9.81 m/s²).
+
+    Returns:
+    - xr.Dataset: The processed dataset with added variables.
+    """
+    # Open the dataset
+    ds = xr.open_dataset(file_path)
+    
+    # Calculate 10m wind speed
+    ds['u10'] = ds['WindSpeed'] * (np.log(10 / z0)) / np.log(4.1 / z0)
+    
+    # Calculate phase speed
+    ds['cp'] = grav / (2 * np.pi * ds['frequency'])
+    
+    ds['dd'] = angdif(ds['direction'] * (180/np.pi), ds['WindDirection'])
+    
+    # Calculate a
+    ds['a'] = beta * (ds['u10'] / ds['cp']) * np.cos(np.deg2rad(ds['dd']))
+    
+    # Calculate the windsea part of the spectrum
+    ds['WS'] = ds['SPEC'].where((ds['a'] > 1) & (ds['dd'] < 90), 0)
+    ds['Ef'] = ds['SPEC'].integrate('direction')
+    ds['Ef_ws'] = ds['WS'].integrate('direction')
+    
+    # Calculate integrated parameters
+    ds['fp_ws'] = ds['WS'].integrate('direction').idxmax(dim='frequency')
+    ds['wp_ws'] = 2 * np.pi * ds['fp_ws']
+    ds['pdir_ws'] = ds['WS'].integrate('frequency').idxmax(dim='direction')
+    
+  
+    return ds
 
 def process_wind_data(wind_data, z0=0.0002, grav=9.8, window_size=9, ws_threshold=2.5, dir_threshold=15):
     """
@@ -99,17 +138,17 @@ def process_wind_data(wind_data, z0=0.0002, grav=9.8, window_size=9, ws_threshol
     # Convert to DataFrame and compute u and v components of the wind if data is xarray
     wind = wind_data.to_dataframe()
 
-    wind['u'] = wind['WindSpeed'] * np.sin(np.deg2rad(wind['WindDirection']))
-    wind['v'] = wind['WindSpeed'] * np.cos(np.deg2rad(wind['WindDirection']))
+    wind['u'] = -wind['WindSpeed'] * np.sin(np.deg2rad(wind['WindDirection']))
+    wind['v'] = -wind['WindSpeed'] * np.cos(np.deg2rad(wind['WindDirection']))
     
-    # Compute 1.5 hour rolling averages for u, v, and wind speed
+    # Compute 1.5 hour rolling averages for u, v
     wind['u15'] = wind['u'].rolling(window=window_size).mean()
     wind['v15'] = wind['v'].rolling(window=window_size).mean()
     wind['ws15'] = np.sqrt(wind['u15']**2 + wind['v15']**2)
     
     # Compute 1.5 hour rolling direction
-    dperr = 180 / np.pi
-    wind['dir15'] = (np.arctan2(wind['u15'], wind['v15']) * dperr) % 360
+    dperr = 180 / np.pi #deg to rad
+    wind['dir15'] = ((np.arctan2(wind['u15'], wind['v15']) * dperr) + 180) % 360 # direction from
     
     
     # Convert DataFrame to xarray and compute differences
