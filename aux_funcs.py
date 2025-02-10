@@ -106,14 +106,15 @@ def aarnes_windsea(file_path, z0, beta, grav=9.81):
     ds['a'] = beta * (ds['u10'] / ds['cp']) * np.cos(np.deg2rad(ds['dd']))
     
     # Calculate the windsea part of the spectrum
-    ds['WS'] = ds['SPEC'].where((ds['a'] > 1) & (ds['dd'] < 90), 0)
+    ds['WS'] = ds['SPEC'].where(ds['a'] > 1, 0)
+    ds['WS2'] = ds['WS'].where(ds['dd'] < 90, 0)
     ds['Ef'] = ds['SPEC'].integrate('direction')
-    ds['Ef_ws'] = ds['WS'].integrate('direction')
+    ds['Ef_ws'] = ds['WS2'].integrate('direction')
     
     # Calculate integrated parameters
-    ds['fp_ws'] = ds['WS'].integrate('direction').idxmax(dim='frequency')
+    ds['fp_ws'] = ds['WS2'].integrate('direction').idxmax(dim='frequency')
     ds['wp_ws'] = 2 * np.pi * ds['fp_ws']
-    ds['pdir_ws'] = ds['WS'].integrate('frequency').idxmax(dim='direction')
+    ds['pdir_ws'] = ds['WS2'].integrate('frequency').idxmax(dim='direction')
     
   
     return ds
